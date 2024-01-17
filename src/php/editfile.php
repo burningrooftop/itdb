@@ -163,6 +163,8 @@ if (isset($_POST['id'])) { //if we came from a post (save), update the file
 
 //echo "<pre>"; print_r($_REQUEST); echo "</pre>";
 
+  if (!isset($_POST['itlnk'])) $itlnk=array();
+  else $itlnk=$_POST['itlnk'];
   //update item - file links 
   //remove old links for this object
   $sql="delete from item2file where fileid=$id";
@@ -173,6 +175,8 @@ if (isset($_POST['id'])) { //if we came from a post (save), update the file
     db_exec($dbh,$sql);
   }
 
+  if (!isset($_POST['softlnk'])) $softlnk=array();
+  else $softlnk=$_POST['softlnk'];
   //update software - file links 
   //remove old links for this object
   $sql="delete from software2file where fileid=$id";
@@ -183,6 +187,8 @@ if (isset($_POST['id'])) { //if we came from a post (save), update the file
     db_exec($dbh,$sql);
   }
 
+  if (!isset($_POST['contrlnk'])) $contrlnk=array();
+  else $contrlnk=$_POST['contrlnk'];
   //update contract - file links 
   //remove old links for this object
   $sql="delete from contract2file where fileid=$id";
