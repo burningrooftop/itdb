@@ -330,7 +330,7 @@ global $dbh,$disperr,$err,$_POST;
 	  $sql="SELECT id from items where  id <> $myid AND ((length(sn)>0 AND sn in ('{$_POST['sn']}', '{$_POST['sn2']}')) OR (length(sn2)>0 AND sn2 in ('{$_POST['sn']}', '{$_POST['sn2']}')))  LIMIT 1";
 	  $sth=db_execute($dbh,$sql);
 	  $dups=$sth->fetchAll(PDO::FETCH_ASSOC);
-	  if (count($dups[0])) {
+	  if (count($dups)) {
 		  $err.="Duplicate SN with id <a href='$scriptname?action=edititem&amp;id={$dups[0]['id']}'><b><u>{$dups[0]['id']}</u></b></a>";
 	  }
   }
