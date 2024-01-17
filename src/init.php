@@ -21,12 +21,14 @@ if (basename($scriptdir)=="php") {
 }
 
 //wscriptdir: www relative address of base itdb directory (/itdb)
-//used for cookie setting
 $wscriptdir=dirname($_SERVER['SCRIPT_NAME']);
 if (basename($wscriptdir)=="php") { 
   $wscriptdir=preg_replace('#/php$#','',$wscriptdir);
 }
-if ($wscriptdir=="") $wscriptdir="/"; //itdb installed under /
+
+//wcookiedir: used for cookie setting
+$wcookiedir=$wscriptdir;
+if ($wcookiedir=="") $wcookiedir="/"; //itdb installed under /
 
 if (isset($_SERVER['HTTP_X_FORWARDED_FOR']))
   $remaddr=$_SERVER['HTTP_X_FORWARDED_FOR'];
@@ -172,23 +174,23 @@ else {
 date_default_timezone_set($settings['timezone']);
 
 read_trans($settings['lang']);
-if (get_magic_quotes_gpc()) {
-    function stripslashes_deep($value)
-    {
-        $value = is_array($value) ?
-                    array_map('stripslashes_deep', $value) :
-                    //sqlite_escape_string(stripslashes($value));
-                    strenc(stripslashes($value)); /* take care of special chars + quotes */
-                    //stripslashes($value);
-
-        return $value;
-    }
-
-    $_POST = array_map('stripslashes_deep', $_POST);
-    $_GET = array_map('stripslashes_deep', $_GET); /* careful, this may interfere with  serialize()/unserialize() */
-    $_COOKIE = array_map('stripslashes_deep', $_COOKIE);
-    $_REQUEST = array_map('stripslashes_deep', $_REQUEST);
-}
+//if (get_magic_quotes_gpc()) {
+//    function stripslashes_deep($value)
+//    {
+//        $value = is_array($value) ?
+//                    array_map('stripslashes_deep', $value) :
+//                    //sqlite_escape_string(stripslashes($value));
+//                    strenc(stripslashes($value)); /* take care of special chars + quotes */
+//                    //stripslashes($value);
+//
+//        return $value;
+//    }
+//
+//    $_POST = array_map('stripslashes_deep', $_POST);
+//    $_GET = array_map('stripslashes_deep', $_GET); /* careful, this may interfere with  serialize()/unserialize() */
+//    $_COOKIE = array_map('stripslashes_deep', $_COOKIE);
+//    $_REQUEST = array_map('stripslashes_deep', $_REQUEST);
+//}
 
 
 ///////////cookies///////////
@@ -196,7 +198,7 @@ $authstatus=0;
 $authmsg="Not logged in";
 if (!$demomode ) {
   if (isset($_POST['logout'])) {
-     setcookie("itdbcookie1",'', time()+3600*1,$wscriptdir);
+     setcookie("itdbcookie1",'', time()+3600*1,$wcookiedir);
      header("Location: $scriptname"); //eat get parameters
   }
   elseif (isset($_POST['authusername'])){ //logging in
@@ -219,8 +221,8 @@ if (!$demomode ) {
                          array('username'=>$username,'cookie1'=>$rnd,'usertype'=>2));
                  }
                  db_exec($dbh,"UPDATE users set cookie1='$rnd' where username='$username'",1,1);
-                 setcookie("itdbcookie1",$rnd, time()+3600*24*2,$wscriptdir); //random number set for two days
-                 setcookie("itdbuser",$username, time()+3600*24*60,$wscriptdir); //username
+                 setcookie("itdbcookie1",$rnd, time()+3600*24*2,$wcookiedir); //random number set for two days
+                 setcookie("itdbuser",$username, time()+3600*24*60,$wcookiedir); //username
                  $authstatus=1;
                  $authmsg="User Authenticated";
             }
@@ -243,8 +245,8 @@ if (!$demomode ) {
              db_exec($dbh,"UPDATE users set cookie1='$rnd' where username='$username'",1,1);
 
              //store random in browser
-             setcookie("itdbcookie1",$rnd, time()+3600*24*2,$wscriptdir); //random number set for two days
-             setcookie("itdbuser",$username, time()+3600*24*60,$wscriptdir); //username
+             setcookie("itdbcookie1",$rnd, time()+3600*24*2,$wcookiedir); //random number set for two days
+             setcookie("itdbuser",$username, time()+3600*24*60,$wcookiedir); //username
              $authstatus=1;
              $authmsg="User Authenticated";
            }
@@ -269,7 +271,7 @@ if (!$demomode ) {
     if ($userdata[0]['cookie1']==$_COOKIE["itdbcookie1"]) {
       $authstatus=1;
       $authmsg="Welcome back ".$_COOKIE["itdbuser"];
-      setcookie("itdbcookie1",$userdata[0]['cookie1'], time()+3600*24*2,$wscriptdir); //renew for two days
+      setcookie("itdbcookie1",$userdata[0]['cookie1'], time()+3600*24*2,$wcookiedir); //renew for two days
     }
     else {
       $authstatus=0;

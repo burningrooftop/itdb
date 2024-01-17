@@ -190,6 +190,8 @@ if (isset($_POST['itemtypeid']) && ($_GET['id']!="new") && isvalidfrm()) {
   }
   $dbh->commit();
 
+  if (!isset($_POST['softlnk'])) $softlnk=array();
+  else $softlnk=$_POST['softlnk'];
   //update software - item links 
   //remove old links for this object
   $sql="delete from item2soft where itemid=$id";
@@ -200,6 +202,8 @@ if (isset($_POST['itemtypeid']) && ($_GET['id']!="new") && isvalidfrm()) {
     db_exec($dbh,$sql);
   }
 
+  if (!isset($_POST['contrlnk'])) $contrlnk=array();
+  else $contrlnk=$_POST['contrlnk'];
   //update contract - item links 
   //remove old links for this object
   $sql="delete from contract2item where itemid=$id";
@@ -278,25 +282,23 @@ elseif (isset($_POST['itemtypeid']) && ($_GET['id']=="new")&&isvalidfrm()) {
     }
   }//add invoice links
 
-  //update software - item links 
-  //remove old links for this object
-  $sql="DELETE from item2soft where itemid=$lastid";
-  db_exec($dbh,$sql);
   //add new links for each checked checkbox
-  for ($i=0;$i<count($softlnk);$i++) {
-    $sql="INSERT into item2soft (itemid,softid) values ($lastid,".$softlnk[$i].")";
-    db_exec($dbh,$sql);
-  }
+  if (isset($_POST['softlnk'])) {
+    $softlnk=$_POST['softlnk'];
+    for ($i=0;$i<count($softlnk);$i++) {
+      $sql="INSERT into item2soft (itemid,softid) values ($lastid,".$softlnk[$i].")";
+      db_exec($dbh,$sql);
+    }
+  }//add software links
 
-  //update contract - item links 
-  //remove old links for this object
-  $sql="DELETE from contract2item where itemid=$lastid";
-  db_exec($dbh,$sql);
   //add new links for each checked checkbox
-  for ($i=0;$i<count($contrlnk);$i++) {
-    $sql="INSERT into contract2item (itemid,contractid) values ($lastid,".$contrlnk[$i].")";
-    db_exec($dbh,$sql);
-  }
+  if (isset($_POST['contrlnk'])) {
+    $contrlnk=$_POST['contrlnk'];
+    for ($i=0;$i<count($contrlnk);$i++) {
+      $sql="INSERT into contract2item (itemid,contractid) values ($lastid,".$contrlnk[$i].")";
+      db_exec($dbh,$sql);
+    }
+  }//add contract links
 
 
   //add new action entry
@@ -324,7 +326,7 @@ global $dbh,$disperr,$err,$_POST;
 
 
   $myid=$_GET['id'];
-  if ($myid != "new" && is_numeric($myid) && (strlen(trim($_POST['sn'])) || strlen(trim($_POST['sn2'])))) {
+  if ($myid != "new" && is_numeric($myid) && (strlen($_POST['sn']) || strlen($_POST['sn2']))) {
 	  $sql="SELECT id from items where  id <> $myid AND ((length(sn)>0 AND sn in ('{$_POST['sn']}', '{$_POST['sn2']}')) OR (length(sn2)>0 AND sn2 in ('{$_POST['sn']}', '{$_POST['sn2']}')))  LIMIT 1";
 	  $sth=db_execute($dbh,$sql);
 	  $dups=$sth->fetchAll(PDO::FETCH_ASSOC);
